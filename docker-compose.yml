@@ -1,0 +1,57 @@
+# backup-center/docker-compose.yml
+#version: "3.9"
+services:
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio-data:/data
+    ports: ["9000:9000", "9001:9001"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on: [minio]
+    entrypoint: >
+      sh -c "
+      until mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}; do sleep 2; done &&
+      mc mb -p local/backups || true &&
+      mc version enable local/backups || true
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+
+  healthchecks:
+    image: healthchecks/healthchecks:latest
+    environment:
+      ALLOWED_HOSTS: "*"
+      DEBUG: "False"
+      SECRET_KEY: "change-me"
+      DB_NAME: "hc"
+      DB_USER: "hc"
+      DB_PASSWORD: "hc"
+      DB_HOST: "sqlite"   # Using built-in SQLite; for prod switch to Postgres
+      DEFAULT_FROM_EMAIL: "hc@example.com"
+    ports: ["8000:8000"]
+
+  cronicle:
+    image: soulteary/cronicle
+    ports: ["3012:3012"]
+    volumes:
+      - cronicle-data:/opt/cronicle/data
+      - cronicle-logs:/opt/cronicle/logs
+    environment:
+      TZ: Asia/Dubai
+
+volumes:
+  minio-data:
+  cronicle-data:
+  cronicle-logs:
