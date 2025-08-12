@@ -1,1 +1,12 @@
-# backupagent
+# Backupagent
+
+docker run --rm --network host   -e PGHOST=127.0.0.1   -e PGPORT=5432   -e PGUSER=saeed   -e PGPASSWORD="saeed"   -e PGDATABASE=all   -e BACKUP_TYPE=dump   -e OUTPUT_DIR=/backups   -e RETENTION_COUNT=14   -e COMPRESS=zstd   -e ENCRYPT=false   -e S3_UPLOAD=true   -e S3_BUCKET=s3://minio-backups/postgres/prod   -e AWS_ACCESS_KEY_ID="minioadmin"   -e AWS_SECRET_ACCESS_KEY="minioadmin"   -e AWS_DEFAULT_REGION=us-east-1   -e S3_ENDPOINT=http://localhost:9000   -e S3_SSL_VERIFY=false   -v /var/backups/postgres:/backups   registry.xcr9.site/image/pg-backup-agent-test:latest
+
+
+docker run --rm --network host   -e MONGODB_URI="mongodb://127.0.0.1:27017"   -e MONGO_DB=all   -e READ_PREFERENCE=secondaryPreferred   -e DUMP_OPLOG=true   -e OUTPUT_DIR=/backups   -e RETENTION_COUNT=14   -e COMPRESS=zstd   -e ENCRYPT=false   -e S3_UPLOAD=true   -e S3_BUCKET=s3://minio-backups/mongo/prod   -e AWS_ACCESS_KEY_ID="minioadmin"   -e AWS_SECRET_ACCESS_KEY="minioadmin"   -e AWS_DEFAULT_REGION=us-east-1   -e AWS_S3_FORCE_PATH_STYLE=true   -e S3_ENDPOINT=http://localhost:9000   -e S3_SSL_VERIFY=false   -v /var/backups/mongo:/backups   registry.xcr9.site/image/mongo-backup-agent:latest
+
+
+docker run --rm --network host   -e CASSANDRA_HOST=127.0.0.1   -e CQL_PORT=9042   -e JMX_HOST=127.0.0.1   -e JMX_PORT=7199   -e DATA_DIRS="/var/lib/cassandra/data"   -e BACKUP_MODE=snapshot   -e KEYSPACES=all   -e FLUSH_BEFORE_SNAPSHOT=true   -e SNAPSHOT_SCHEMA=true   -e OUTPUT_DIR=/backups   -e RETENTION_COUNT=14   -e COMPRESS=zstd   -e ENCRYPT=false   -e S3_UPLOAD=true   -e S3_BUCKET=s3://minio-backups/cassandra/prod   -e AWS_ACCESS_KEY_ID="minioadmin"   -e AWS_SECRET_ACCESS_KEY="minioadmin"   -e AWS_DEFAULT_REGION=us-east-1   -e AWS_S3_FORCE_PATH_STYLE=true   -e S3_ENDPOINT=http://localhost:9000   -e S3_SSL_VERIFY=false   -v /var/lib/cassandra/data:/var/lib/cassandra/data:ro   -v /var/backups/cassandra:/backups   registry.xcr9.site/image/cassandra-backup-agent:latest
+
+
+docker run --rm --network host   -e ORACLE_CONNECT="system/<PASSWORD>@//127.0.0.1:1521/XEPDB1"   -e BACKUP_TYPE=datapump   -e DP_SCOPE=full   -e DP_PARALLEL=2   -e DP_DIR_NAME=BACKUP_DIR   -e DP_DIR_PATH=/var/backups/oracle/dpump   -e OUTPUT_DIR=/backups   -e RETENTION_COUNT=14   -e COMPRESS=zstd   -e ENCRYPT=false   -e S3_UPLOAD=true   -e S3_BUCKET=s3://minio-backups/oracle/prod   -e AWS_ACCESS_KEY_ID="minioadmin"   -e AWS_SECRET_ACCESS_KEY="minioadmin"   -e AWS_DEFAULT_REGION=us-east-1   -e AWS_S3_FORCE_PATH_STYLE=true   -e S3_ENDPOINT=http://localhost:9000   -e S3_SSL_VERIFY=false   -v /var/backups/oracle:/backups   -v /var/backups/oracle/dpump:/var/backups/oracle/dpump   registry.xcr9.site/image/oracle-backup-agent:latest
